@@ -36,13 +36,28 @@ namespace ImageTranslator.Controllers
         }
 
         [HttpPost]
-        public IActionResult UploadImage(IFormFile uploadedFile, string lang)
+        public IActionResult TranslateImage(IFormFile uploadedFile, string lang)
         {
             byte[] bytes = GetByteArrayFromFile(uploadedFile);
+            Image image = Image.FromBytes(bytes);
+
             HomeViewModel model = new HomeViewModel();
-            model.OriginalText = GetText(bytes);
+            model.OriginalText = GetTextFromImage(image);
             model.TranslatedText = Translate(model.OriginalText, lang);
             model.Image = Convert.ToBase64String(bytes);
+
+            return View("Index", model);
+        }
+
+        [HttpPost]
+        public IActionResult TranslateImageViaUrl(string url, string lang)
+        {
+            Image image = Image.FetchFromUri(url);
+
+            HomeViewModel model = new HomeViewModel();
+            model.OriginalText = GetTextFromImage(image);
+            model.TranslatedText = Translate(model.OriginalText, lang);
+            model.Image = image.Content.ToString();
 
             return View("Index", model);
         }
@@ -53,11 +68,9 @@ namespace ImageTranslator.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        private string GetText(byte[] bytes)
+        private string GetTextFromImage(Image image)
         {
             ImageAnnotatorClient client = ImageAnnotatorClient.Create();
-
-            Image image = Image.FromBytes(bytes);
             IReadOnlyList<EntityAnnotation> textAnnotations = client.DetectText(image);
 
             HomeViewModel model = new HomeViewModel();
