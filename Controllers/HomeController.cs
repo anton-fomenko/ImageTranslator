@@ -36,12 +36,12 @@ namespace ImageTranslator.Controllers
         }
 
         [HttpPost]
-        public IActionResult UploadImage(IFormFile uploadedFile)
+        public IActionResult UploadImage(IFormFile uploadedFile, string lang)
         {
             byte[] bytes = GetByteArrayFromFile(uploadedFile);
             HomeViewModel model = new HomeViewModel();
             model.OriginalText = GetText(bytes);
-            model.TranslatedText = Translate(model.OriginalText);
+            model.TranslatedText = Translate(model.OriginalText, lang);
             model.Image = Convert.ToBase64String(bytes);
 
             return View("Index", model);
@@ -55,6 +55,8 @@ namespace ImageTranslator.Controllers
 
         private string GetText(byte[] bytes)
         {
+            return "string";
+
             ImageAnnotatorClient client = ImageAnnotatorClient.Create();
 
             Image image = Image.FromBytes(bytes);
@@ -75,13 +77,13 @@ namespace ImageTranslator.Controllers
             }
         }
 
-        private string Translate(string input)
+        private string Translate(string input, string langCode)
         {
             TranslationServiceClient client = TranslationServiceClient.Create();
             TranslateTextRequest request = new TranslateTextRequest
             {
                 Contents = { input },
-                TargetLanguageCode = "fr-FR",
+                TargetLanguageCode = langCode,
                 Parent = new ProjectName("glossy-calculus-316915").ToString()
             };
             TranslateTextResponse response = client.TranslateText(request);
