@@ -11,7 +11,7 @@
 
 <main class="text-center">
     <form asp-controller="Home" asp-action="UploadImage" enctype="multipart/form-data">
-        <input type="file" id="myFile" name="uploadedFile">
+        <input type="file" id="myFile" name="uploadedFile" required>
         <input type="submit">
 
         <select name="lang" data-placeholder="Choose a Language...">
@@ -90,17 +90,20 @@
         </select>
     </form>
 
-    <div>
-        <img src="data:image/png;base64,@Model.Image" width="600" height="600">
-    </div>
+    @if(Model.Image != null)
+    {    
+        <div>
+            <img src="data:image/png;base64,@Model.Image" width="600" height="600">
+        </div>
 
-    <label>Original Text:</label>
-    <p>
-        @Model.OriginalText
-    </p>
+        <label>Original Text:</label>
+        <p>
+            @Model.OriginalText
+        </p>
 
-    <label>Translated Text:</label>
-    <p>
-        @Model.TranslatedText
-    </p>
+        <label>Translated Text:</label>
+        <p>
+            @Model.TranslatedText
+        </p>
+    }
 </main>

@@ -55,8 +55,6 @@ namespace ImageTranslator.Controllers
 
         private string GetText(byte[] bytes)
         {
-            return "string";
-
             ImageAnnotatorClient client = ImageAnnotatorClient.Create();
 
             Image image = Image.FromBytes(bytes);
