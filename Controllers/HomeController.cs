@@ -39,6 +39,7 @@ namespace ImageTranslator.Controllers
             ImageAnnotatorClient client = ImageAnnotatorClient.Create();
             byte[] bytes = GetByteArrayFromFile(uploadedFile);
             Image image = Image.FromBytes(bytes);
+            
             IReadOnlyList<EntityAnnotation> textAnnotations = client.DetectText(image);
 
             foreach (EntityAnnotation text in textAnnotations)
@@ -48,6 +49,7 @@ namespace ImageTranslator.Controllers
 
             HomeViewModel model = new HomeViewModel();
             model.Text = String.Join(Environment.NewLine, textAnnotations.Select(t => t.Description));
+            model.Image = Convert.ToBase64String(bytes);
 
             return View("Index", model);
         }
