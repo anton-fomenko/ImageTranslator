@@ -8,7 +8,8 @@ namespace ImageTranslator.Models
 {
     public class HomeViewModel
     {
-        public string Text { get; set; }
+        public string OriginalText { get; set; }
+        public string TranslatedText { get; set; }
         public string Image { get; set; }
     }
 }

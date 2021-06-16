@@ -1,5 +1,7 @@
-﻿using Google.Apis.Auth.OAuth2;
+﻿using Google.Api.Gax.ResourceNames;
+using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
+using Google.Cloud.Translate.V3;
 using Google.Cloud.Vision.V1;
 using ImageTranslator.Models;
 using Microsoft.AspNetCore.Http;
@@ -36,19 +38,10 @@ namespace ImageTranslator.Controllers
         [HttpPost]
         public IActionResult UploadImage(IFormFile uploadedFile)
         {
-            ImageAnnotatorClient client = ImageAnnotatorClient.Create();
             byte[] bytes = GetByteArrayFromFile(uploadedFile);
-            Image image = Image.FromBytes(bytes);
-            
-            IReadOnlyList<EntityAnnotation> textAnnotations = client.DetectText(image);
-
-            foreach (EntityAnnotation text in textAnnotations)
-            {
-                Debug.WriteLine($"Description: {text.Description}");
-            }
-
             HomeViewModel model = new HomeViewModel();
-            model.Text = String.Join(Environment.NewLine, textAnnotations.Select(t => t.Description));
+            model.OriginalText = GetText(bytes);
+            model.TranslatedText = Translate(model.OriginalText);
             model.Image = Convert.ToBase64String(bytes);
 
             return View("Index", model);
@@ -60,6 +53,19 @@ namespace ImageTranslator.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        private string GetText(byte[] bytes)
+        {
+            ImageAnnotatorClient client = ImageAnnotatorClient.Create();
+
+            Image image = Image.FromBytes(bytes);
+            IReadOnlyList<EntityAnnotation> textAnnotations = client.DetectText(image);
+
+            HomeViewModel model = new HomeViewModel();
+            string text = String.Join(Environment.NewLine, textAnnotations.Select(t => t.Description));
+
+            return text;
+        }
+
         private byte[] GetByteArrayFromFile(IFormFile file)
         {
             using (var target = new MemoryStream())
@@ -67,6 +73,20 @@ namespace ImageTranslator.Controllers
                 file.CopyTo(target);
                 return target.ToArray();
             }
+        }
+
+        private string Translate(string input)
+        {
+            TranslationServiceClient client = TranslationServiceClient.Create();
+            TranslateTextRequest request = new TranslateTextRequest
+            {
+                Contents = { input },
+                TargetLanguageCode = "fr-FR",
+                Parent = new ProjectName("glossy-calculus-316915").ToString()
+            };
+            TranslateTextResponse response = client.TranslateText(request);
+            Translation translation = response.Translations[0];
+            return translation.TranslatedText;
         }
     }
 }
