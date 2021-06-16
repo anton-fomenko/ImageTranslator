@@ -25,7 +25,7 @@ namespace ImageTranslator.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return View(new HomeViewModel());
         }
 
         public IActionResult Privacy()
@@ -46,7 +46,10 @@ namespace ImageTranslator.Controllers
                 Debug.WriteLine($"Description: {text.Description}");
             }
 
-            return View("Index");
+            HomeViewModel model = new HomeViewModel();
+            model.Text = String.Join(Environment.NewLine, textAnnotations.Select(t => t.Description));
+
+            return View("Index", model);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

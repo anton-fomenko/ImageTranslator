@@ -1,4 +1,6 @@
-﻿@{
+﻿@model HomeViewModel
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -11,3 +13,7 @@
     <input type="file" id="myFile" name="uploadedFile">
     <input type="submit">
 </form>
+
+<p>
+    @Model.Text
+</p>
