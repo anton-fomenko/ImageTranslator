@@ -36,28 +36,33 @@ namespace ImageTranslator.Controllers
         }
 
         [HttpPost]
-        public IActionResult TranslateImage(IFormFile uploadedFile, string lang)
+        public IActionResult TranslateImage(string url, IFormFile uploadedFile, string lang)
         {
-            byte[] bytes = GetByteArrayFromFile(uploadedFile);
-            Image image = Image.FromBytes(bytes);
-
             HomeViewModel model = new HomeViewModel();
+
+            if (url == null && uploadedFile == null)
+            {
+                model.ValidationMessage = "Please either provide the URL or upload the file from your computer.";
+                
+                return View("Index", model);
+            }
+
+            Image image = null;
+
+            if (url != null)
+            {
+                image = Image.FetchFromUri(url);
+                model.Image = image.Content.ToBase64();
+            }     
+            else
+            {
+                byte[] bytes = GetByteArrayFromFile(uploadedFile);
+                image = Image.FromBytes(bytes);
+                model.Image = Convert.ToBase64String(bytes);
+            }
+
             model.OriginalText = GetTextFromImage(image);
             model.TranslatedText = Translate(model.OriginalText, lang);
-            model.Image = Convert.ToBase64String(bytes);
-
-            return View("Index", model);
-        }
-
-        [HttpPost]
-        public IActionResult TranslateImageViaUrl(string url, string lang)
-        {
-            Image image = Image.FetchFromUri(url);
-
-            HomeViewModel model = new HomeViewModel();
-            model.OriginalText = GetTextFromImage(image);
-            model.TranslatedText = Translate(model.OriginalText, lang);
-            model.Image = image.Content.ToString();
 
             return View("Index", model);
         }
