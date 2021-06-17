@@ -79,7 +79,7 @@ namespace ImageTranslator.Controllers
             IReadOnlyList<EntityAnnotation> textAnnotations = client.DetectText(image);
 
             HomeViewModel model = new HomeViewModel();
-            string text = String.Join(Environment.NewLine, textAnnotations.Select(t => t.Description));
+            string text = textAnnotations.First().Description;
 
             return text;
         }
