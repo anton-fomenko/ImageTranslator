@@ -1,10 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace ImageTranslator.Models
+﻿namespace ImageTranslator.Models
 {
     public class HomeViewModel
     {
@@ -12,5 +6,7 @@ namespace ImageTranslator.Models
         public string TranslatedText { get; set; }
         public string Image { get; set; }
         public string ValidationMessage { get; set; }
+        public string TranslatedLanguage { get; set; }
+        public string OriginalLanguage { get; set; }
     }
 }

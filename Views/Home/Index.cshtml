@@ -110,12 +110,12 @@
     @if (Model.Image != null)
     {
         <br/>
-        <label class="font-weight-bold">Original Text:</label>
+        <label class="font-weight-bold">Original Text (@Model.OriginalLanguage):</label>
         <p>
             @Model.OriginalText
         </p>
 
-        <label class="font-weight-bold">Translated Text:</label>
+        <label class="font-weight-bold">Translated Text (@Model.TranslatedLanguage):</label>
         <p>
             @Model.TranslatedText
         </p>

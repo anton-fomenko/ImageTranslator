@@ -1,6 +1,4 @@
 ﻿using Google.Api.Gax.ResourceNames;
-using Google.Apis.Auth.OAuth2;
-using Google.Cloud.Storage.V1;
 using Google.Cloud.Translate.V3;
 using Google.Cloud.Vision.V1;
 using ImageTranslator.Models;
@@ -10,9 +8,9 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ImageTranslator.Controllers
 {
@@ -61,8 +59,12 @@ namespace ImageTranslator.Controllers
                 model.Image = Convert.ToBase64String(bytes);
             }
 
-            model.OriginalText = GetTextFromImage(image);
+            EntityAnnotation annotation = GetTextAnnotationFromImage(image);
+
+            model.OriginalText = annotation.Description;
+            model.OriginalLanguage = new CultureInfo(annotation.Locale).EnglishName;
             model.TranslatedText = Translate(model.OriginalText, lang);
+            model.TranslatedLanguage = new CultureInfo(lang).EnglishName;
 
             return View("Index", model);
         }
@@ -73,15 +75,12 @@ namespace ImageTranslator.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        private string GetTextFromImage(Image image)
+        private EntityAnnotation GetTextAnnotationFromImage(Image image)
         {
             ImageAnnotatorClient client = ImageAnnotatorClient.Create();
             IReadOnlyList<EntityAnnotation> textAnnotations = client.DetectText(image);
 
-            HomeViewModel model = new HomeViewModel();
-            string text = textAnnotations.First().Description;
-
-            return text;
+            return textAnnotations.First();
         }
 
         private byte[] GetByteArrayFromFile(IFormFile file)
